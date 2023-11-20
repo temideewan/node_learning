@@ -4,12 +4,13 @@
   "description": "learning node, express, mongo db",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "nodemon server.js"
   },
   "author": "Temidayo Omoyajowo",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
+    "morgan": "^1.10.0",
     "nodemon": "^3.0.1"
   }
 }
