@@ -4,18 +4,28 @@ const tours = JSON.parse(
 );
 
 // param middleware
-exports.checkID = (req,res,next, val) => {
+exports.checkID = (req, res, next, val) => {
   console.log(`Tour id is : ${val}`);
   const id = req.params.id * 1;
   const tour = tours.find((tour) => tour.id === id);
   if (id > tours.length || !tour) {
     return res
       .status(404)
-      .json({ status: 'failed', data: { message: 'tour not found' } });
+      .json({ status: 'failed', message: 'tour not found' });
   }
 
   next();
-}
+};
+exports.checkBody = (req, res, next) => {
+  console.log(req.body);
+  const { name, price } = req.body;
+  if (!name || !price) {
+    return res
+      .status(400)
+      .json({ status: 'failed', message: 'Missing name or price' });
+  }
+  next();
+};
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
