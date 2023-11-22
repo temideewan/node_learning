@@ -3,6 +3,19 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
+// param middleware
+exports.checkID = (req,res,next, val) => {
+  console.log(`Tour id is : ${val}`);
+  const id = req.params.id * 1;
+  const tour = tours.find((tour) => tour.id === id);
+  if (id > tours.length || !tour) {
+    return res
+      .status(404)
+      .json({ status: 'failed', data: { message: 'tour not found' } });
+  }
+
+  next();
+}
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -20,12 +33,6 @@ exports.getAllTours = (req, res) => {
 exports.getTour = (req, res) => {
   const id = req.params.id * 1;
   const tour = tours.find((tour) => tour.id === id);
-  // if(id > tours.length) {
-  if (!tour) {
-    return res
-      .status(404)
-      .json({ status: 'failed', data: { message: 'tour not found' } });
-  }
   res.status(200).json({
     status: 'success',
     data: {
@@ -67,12 +74,6 @@ exports.updateTour = (req, res) => {
   });
 };
 exports.deleteTour = (req, res) => {
-  const id = req.params.id * 1;
-  if (id > tours.length) {
-    return res
-      .status(404)
-      .json({ status: 'failed', data: { message: 'tour not found' } });
-  }
   res.status(204).json({
     status: 'success',
     data: null,
