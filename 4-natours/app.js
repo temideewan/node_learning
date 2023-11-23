@@ -1,15 +1,18 @@
 const express = require('express');
 const morgan = require('morgan');
-const tourRouter = require("./routes/tourRoutes")
-const userRouter = require("./routes/userRoutes")
+const tourRouter = require('./routes/tourRoutes');
+const userRouter = require('./routes/userRoutes');
 
 const app = express();
 // MIDDLEWARES
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
-  console.log('Hello from the middleware 👋');
+  // console.log('Hello from the middleware 👋');
   next();
 });
 
@@ -18,13 +21,11 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // ROUTES
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 module.exports = app;
-
 
 // 201 stands for something new is created
 // 204 stands for no content
