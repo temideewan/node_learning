@@ -2,11 +2,11 @@ const Tour = require('../models/tourModel');
 
 exports.getAllTours = async (req, res) => {
   try {
-    // filtering
+    //1A) filtering
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((field) => delete queryObj[field]);
-    // Advanced filtering
+    //1B) Advanced filtering
     let queryString = JSON.stringify(queryObj);
     // find occurrence of gte,lt,lte,gt and replace with the mongodb operator (i.e add $ to it's front)
     queryString = queryString.replace(
@@ -15,8 +15,15 @@ exports.getAllTours = async (req, res) => {
     );
 
     // build query
-    const query = Tour.find(JSON.parse(queryString));
+    let query = Tour.find(JSON.parse(queryString));
 
+    // 2 Sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
     // execute the query
     const tours = await query;
 
