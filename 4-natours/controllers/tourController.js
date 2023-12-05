@@ -2,7 +2,25 @@ const Tour = require('../models/tourModel');
 
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find({});
+    // filtering
+    const queryObj = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((field) => delete queryObj[field]);
+    // Advanced filtering
+    let queryString = JSON.stringify(queryObj);
+    // find occurrence of gte,lt,lte,gt and replace with the mongodb operator (i.e add $ to it's front)
+    queryString = queryString.replace(
+      /(gte|gt|lte|lt)\b/g,
+      (match) => `$${match}`,
+    );
+
+    // build query
+    const query = Tour.find(JSON.parse(queryString));
+
+    // execute the query
+    const tours = await query;
+
+    // return results
     res.status(200).json({
       status: 'success',
       results: tours.length,
@@ -10,6 +28,13 @@ exports.getAllTours = async (req, res) => {
         tours,
       },
     });
+
+    // {difficulty: 'easy', duration: {$gte: 5}}
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
   } catch (error) {
     res.status(404).json({
       status: 'fail',
