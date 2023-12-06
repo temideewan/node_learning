@@ -1,12 +1,19 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
 
-const { createTour, getAllTours, getTour, updateTour, deleteTour } =
-  tourController;
+const {
+  createTour,
+  getAllTours,
+  getTour,
+  updateTour,
+  deleteTour,
+  aliasTopTours,
+} = tourController;
 
 const router = express.Router();
 // a param middleware that activates only on the tour sub application
 // router.param('id', tourController.checkID);
+router.route('/top-5-tours').get(aliasTopTours, getAllTours);
 router.route('/').get(getAllTours).post(createTour);
 router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
