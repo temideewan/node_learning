@@ -96,6 +96,13 @@ toursSchema.pre(/^find/, function (next) {
 //   console.log(docs);
 //   next();
 // });
+
+// AGGREGATION MIDDLEWARE
+toursSchema.pre('aggregate', function (next) {
+  // this.pipeline() returns an array of the aggregation pipeline
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  next();
+});
 const Tour = mongoose.model('Tour', toursSchema);
 
 module.exports = Tour;
