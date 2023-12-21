@@ -41,7 +41,7 @@ const sendProdError = (err, res) => {
     });
   } else {
     // log error
-    console.error(`ERROR 💣 ${err}`);
+    console.error(`ERROR 💣`, err);
     // send ambiguous error message
     res.status(500).json({
       status: 'error',
