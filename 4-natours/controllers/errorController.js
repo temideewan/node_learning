@@ -15,7 +15,6 @@ const handleDuplicateFieldsDB = (err) => {
         `${uniqueErrorsMap[key]}. You entered '${err.keyValue[key]}' for the '${key}' property`,
     )
     .join('\n');
-  // const message = `Duplicate field value x. Please use another value`;
   return new AppError(message, 400);
 };
 const handleValidationErrorDB = (err) => {
