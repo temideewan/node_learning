@@ -1,7 +1,7 @@
 const AppError = require('../Utils/appError');
 
 const uniqueErrorsMap = {
-  name: 'The tour name has to be unique',
+  name: 'The name has to be unique',
 };
 
 const handleCastErrorDB = (err) => {
@@ -39,7 +39,7 @@ const sendProdError = (err, res) => {
       message: err.message,
     });
   } else {
-    // log error
+    // log error to external monitoring tools or services
     console.error(`ERROR 💣`, err);
     // send ambiguous error message
     res.status(500).json({
@@ -54,7 +54,6 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendDevError(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    console.log(err);
     let error = { ...err, name: err.name };
     if (error.name === 'CastError') error = handleCastErrorDB(error);
     if (error.name === 'MongoError' && error.code === 11000)
