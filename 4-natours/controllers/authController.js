@@ -65,14 +65,13 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
   // 2) Verification token
+  // this step can throw two possible errors that we catch in the error controller. JsonWebTokenError and TokenExpiredError
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
   // 3) check if user still exists
   const freshUser = await User.findById(decoded.id);
   if (!freshUser) {
-    console.log('No fresh user');
     return next(
-      new AppError('The user belonging to the token no longer exists', 401),
+      new AppError('The user belonging to this token no longer exists', 401),
     );
   }
 
