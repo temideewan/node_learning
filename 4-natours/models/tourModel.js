@@ -94,8 +94,7 @@ toursSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
-// toursSchema.pre('save', function (next) {s
-//   console.log('will save document');
+// toursSchema.pre('save', function (next) {
 //   next();
 // });
 

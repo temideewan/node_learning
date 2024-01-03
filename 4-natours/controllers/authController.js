@@ -16,6 +16,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    passwordChangedAt: req.body.passwordChangedAt,
   });
   const token = signToken(newUser._id);
   res.status(201).json({
@@ -68,14 +69,24 @@ exports.protect = catchAsync(async (req, res, next) => {
   // this step can throw two possible errors that we catch in the error controller. JsonWebTokenError and TokenExpiredError
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   // 3) check if user still exists
-  const freshUser = await User.findById(decoded.id);
-  if (!freshUser) {
+  const currentUser = await User.findById(decoded.id);
+  if (!currentUser) {
     return next(
       new AppError('The user belonging to this token no longer exists', 401),
     );
   }
 
   // 4) Check if user changed password after the token was issued
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError(
+        'User recently changed their password, please login again',
+        401,
+      ),
+    );
+  }
 
+  // GRANT ACCESS TO THE PROTECTED ROUTE
+  req.user = currentUser;
   next();
 });
