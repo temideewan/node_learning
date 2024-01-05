@@ -22,6 +22,7 @@ const userSchema = mongoose.Schema({
     type: String,
     required: [true, 'Please provide a password.'],
     minLength: 8,
+    // any query that returns a user will omit this field unless specifically stated using mongoose selection
     select: false,
   },
   passwordConfirm: {
@@ -45,6 +46,7 @@ const userSchema = mongoose.Schema({
   passwordResetExpires: Date,
 });
 
+// with middlewares for the database, we handle the edge cases required to step out of the middleware first, and then write code that the specific middleware is handling.
 userSchema.pre('save', async function (next) {
   // only run the function if password is modified
   if (!this.isModified('password')) return next();

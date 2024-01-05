@@ -18,7 +18,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    passwordChangedAt: req.body.passwordChangedAt,
     role: req.body.role,
   });
   const token = signToken(newUser._id);
@@ -39,7 +38,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Please provide email and password', 400));
   }
   // 2) check if user exists and the password is correct
-  // we select use's password because by default on the model level we specified that the password should not be returned.
+  // we select user's password because by default on the model level we specified that the password should not be returned.
   // we do that by attaching a select to the query and using + with the missing field.
   const user = await User.findOne({ email }).select('+password');
 
