@@ -57,6 +57,14 @@ userSchema.pre('save', async function (next) {
   // go to the next middleware in the stack.
   next();
 });
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  // make sure to back date this just in case the token created with this password is created before the document is completely saved.s
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
 // instance method to ensure password is right
 
 userSchema.methods.correctPassword = async function (
@@ -86,7 +94,6 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest('hex');
 
-  console.log({ resetToken, passwordResetToken: this.passwordResetToken });
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
