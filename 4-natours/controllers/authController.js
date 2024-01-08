@@ -12,6 +12,16 @@ const signToken = (id) => {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
+const createAndSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -20,14 +30,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     role: req.body.role,
   });
-  const token = signToken(newUser._id);
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createAndSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -46,11 +49,8 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
   // 3) If all check is successful, send token to the user
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  user.password = undefined;
+  createAndSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -116,7 +116,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 2) Generate the random reset token
   const resetToken = await user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false });
-  // 3) Send the reset token to their email
+  // 3) Send the reset token(url) to their email
   const resetURL = `${req.protocol}://${req.get(
     'host',
   )}/api/v1/users/resetPassword/${resetToken}`;
@@ -172,10 +172,27 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save();
   // log the user in, send jwt
-  const token = signToken(user._id);
+  createAndSendToken(user, 200, res);
+});
 
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // because it's a protected route, we have access to the user on the request because it's added from the middleware for protecting a route
+
+  //   1) get user from the collection
+  const { id } = req.user;
+  const { password, passwordConfirm, passwordCurrent } = req.body;
+
+  const user = await User.findById(id).select('+password');
+
+  //  2) check if the posted password is correct
+  if (!(await user.correctPassword(passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is wrong', 401));
+  }
+  // 3) update the password if it is the correct one
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+  await user.save();
+
+  // 4) log user in, send jwt
+  createAndSendToken(user, 200, res);
 });
