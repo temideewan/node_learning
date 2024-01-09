@@ -5,8 +5,7 @@ const User = require('../models/userModel');
 const catchAsync = require('../Utils/catchAsync');
 const AppError = require('../Utils/appError');
 const sendEmail = require('../Utils/email');
-
-const anHourAgo = Date.now() - 60 * 60 * 1000;
+const { anHourAgo, maxLoginRetries } = require('../constants/appConstants');
 // eslint-disable-next-line arrow-body-style
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -36,7 +35,6 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  const maxLoginTries = 5;
   // 1) Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password', 400));
@@ -64,7 +62,7 @@ exports.login = catchAsync(async (req, res, next) => {
       ? user.failedLoginAttempts + 1
       : 1;
     await user.save({ validateBeforeSave: false });
-    if (user.failedLoginAttempts === maxLoginTries) {
+    if (user.failedLoginAttempts === maxLoginRetries) {
       return next(
         new AppError(
           'Incorrect email or password. Please wait 1 hour before trying to login again, otherwise your account will be blocked',
@@ -73,7 +71,7 @@ exports.login = catchAsync(async (req, res, next) => {
       );
     }
     if (
-      user.failedLoginAttempts > maxLoginTries &&
+      user.failedLoginAttempts > maxLoginRetries &&
       user.lastLoginTimestamp.getTime() < anHourAgo
     ) {
       user.isBlocked = true;

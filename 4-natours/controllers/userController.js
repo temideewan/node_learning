@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const catchAsync = require('../Utils/catchAsync');
 const AppError = require('../Utils/appError');
+const { validUpdateProperties } = require('../constants/appConstants');
 
 const filterObj = (obj, ...allowedFields) => {
   const safeObject = {};
@@ -57,7 +58,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
       ),
     );
   }
-  const validUpdateProperties = ['name', 'email'];
   // filter out unwanted field names that are not safe to update
   const filteredBody = filterObj(req.body, ...validUpdateProperties);
   // 2) update user document
