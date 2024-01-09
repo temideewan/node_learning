@@ -44,6 +44,11 @@ const userSchema = mongoose.Schema({
   },
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 // with middlewares for the database, we handle the edge cases required to step out of the middleware first, and then write code that the specific middleware is handling.
@@ -67,8 +72,13 @@ userSchema.pre('save', function (next) {
   this.passwordChangedAt = Date.now() - 1000;
   next();
 });
-// instance method to ensure password is right
 
+userSchema.pre(/^find/, function (next) {
+  // this points to the current query
+  this.find({ active: { $ne: false } });
+  next();
+});
+// instance method to ensure password is right
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword,
