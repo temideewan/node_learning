@@ -6,6 +6,7 @@ const catchAsync = require('../Utils/catchAsync');
 const AppError = require('../Utils/appError');
 const sendEmail = require('../Utils/email');
 
+const anHourAgo = Date.now() - 60 * 60 * 1000;
 // eslint-disable-next-line arrow-body-style
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -35,7 +36,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-
+  const maxLoginTries = 5;
   // 1) Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password', 400));
@@ -43,12 +44,60 @@ exports.login = catchAsync(async (req, res, next) => {
   // 2) check if user exists and the password is correct
   // we select user's password because by default on the model level we specified that the password should not be returned.
   // we do that by attaching a select to the query and using + with the missing field.
-  const user = await User.findOne({ email }).select('+password');
-
+  const user = await User.findOne({ email }).select(
+    '+password +failedLoginAttempts +lastLoginTimestamp +isBlocked',
+  );
+  // update the last login time stamp
+  user.lastLoginTimestamp = Date.now();
+  // if user is not blocked, continue otherwise send blocked response
+  if (user && user.isBlocked) {
+    return next(
+      new AppError(
+        'Your account has been suspended. Please reach out to our support team for help',
+        401,
+      ),
+    );
+  }
+  if (user && !(await user.correctPassword(password, user.password))) {
+    // update failed login attempts count
+    user.failedLoginAttempts = user.failedLoginAttempts
+      ? user.failedLoginAttempts + 1
+      : 1;
+    await user.save({ validateBeforeSave: false });
+    if (user.failedLoginAttempts === maxLoginTries) {
+      return next(
+        new AppError(
+          'Incorrect email or password. Please wait 1 hour before trying to login again, otherwise your account will be blocked',
+          401,
+        ),
+      );
+    }
+    if (
+      user.failedLoginAttempts > maxLoginTries &&
+      user.lastLoginTimestamp.getTime() < anHourAgo
+    ) {
+      user.isBlocked = true;
+      await user.save({ validateBeforeSave: false });
+      return next(
+        new AppError(
+          'Your account has been suspended. Please reach out to our support team for help',
+          401,
+        ),
+      );
+    }
+    // check last login attempt times
+    // if failed count is greater than 10 send block warning
+    // else if failed count is greater than 10 and  last login attempt it's less than 1 hour ago add user email to blocked user list(i.e set the user blocked to true)
+    return next(new AppError('Incorrect email or password', 401));
+  }
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
   // 3) If all check is successful, send token to the user
+  user.failedLoginAttempts = 0;
+  await user.save({ validateBeforeSave: false });
+  user.failedLoginAttempts = undefined;
+  user.isBlocked = undefined;
   user.password = undefined;
   createAndSendToken(user, 200, res);
 });

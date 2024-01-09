@@ -49,6 +49,15 @@ const userSchema = mongoose.Schema({
     default: true,
     select: false,
   },
+  lastLoginTimestamp: {
+    type: Date,
+    select: false,
+  },
+  isBlocked: { type: Boolean, select: false },
+  failedLoginAttempts: {
+    type: Number,
+    select: false,
+  },
 });
 
 // with middlewares for the database, we handle the edge cases required to step out of the middleware first, and then write code that the specific middleware is handling.
