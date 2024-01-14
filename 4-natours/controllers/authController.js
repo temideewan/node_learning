@@ -37,33 +37,9 @@ const createAndSendToken = (user, statusCode, res) => {
     },
   });
 };
-exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-    role: req.body.role,
-  });
-  createAndSendToken(newUser, 201, res);
-});
-
-exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
-  // 1) Check if email and password exist
-  if (!email || !password) {
-    return next(new AppError('Please provide email and password', 400));
-  }
-  // 2) check if user exists and the password is correct
-  // we select user's password because by default on the model level we specified that the password should not be returned.
-  // we do that by attaching a select to the query and using + with the missing field.
-  const user = await User.findOne({ email }).select(
-    '+password +failedLoginAttempts +lastLoginTimestamp +isBlocked',
-  );
-  // update the last login time stamp
-  user.lastLoginTimestamp = Date.now();
+const handleMaxLoginRetries = async (user, password, next) => {
   // if user is not blocked, continue otherwise send blocked response
-  if (user && user.isBlocked) {
+  if (user.isBlocked) {
     return next(
       new AppError(
         'Your account has been suspended. Please reach out to our support team for help',
@@ -71,7 +47,7 @@ exports.login = catchAsync(async (req, res, next) => {
       ),
     );
   }
-  if (user && !(await user.correctPassword(password, user.password))) {
+  if (!(await user.correctPassword(password, user.password))) {
     // update failed login attempts count
     user.failedLoginAttempts = user.failedLoginAttempts
       ? user.failedLoginAttempts + 1
@@ -102,6 +78,35 @@ exports.login = catchAsync(async (req, res, next) => {
     // if failed count is greater than 10 send block warning
     // else if failed count is greater than 10 and  last login attempt it's less than 1 hour ago add user email to blocked user list(i.e set the user blocked to true)
     return next(new AppError('Incorrect email or password', 401));
+  }
+};
+exports.signup = catchAsync(async (req, res, next) => {
+  const newUser = await User.create({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    passwordConfirm: req.body.passwordConfirm,
+    role: req.body.role,
+  });
+  createAndSendToken(newUser, 201, res);
+});
+
+exports.login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  // 1) Check if email and password exist
+  if (!email || !password) {
+    return next(new AppError('Please provide email and password', 400));
+  }
+  // 2) check if user exists and the password is correct
+  // we select user's password because by default on the model level we specified that the password should not be returned.
+  // we do that by attaching a select to the query and using + with the missing field.
+  const user = await User.findOne({ email }).select(
+    '+password +failedLoginAttempts +lastLoginTimestamp +isBlocked',
+  );
+  if (user) {
+    // update the last login time stamp
+    user.lastLoginTimestamp = Date.now();
+    await handleMaxLoginRetries(user, password, next); //
   }
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
