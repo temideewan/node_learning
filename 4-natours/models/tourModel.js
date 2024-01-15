@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const User = require('./userModel');
+// const User = require('./userModel');
 
 const toursSchema = new mongoose.Schema(
   {
@@ -104,7 +104,12 @@ const toursSchema = new mongoose.Schema(
         description: String,
       },
     ],
-    guides: Array,
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -120,11 +125,12 @@ toursSchema.pre('save', function (next) {
   next();
 });
 
-toursSchema.pre('save', async function (next) {
-  const guidesPromises = this.guides.map(async (id) => await User.findById(id));
-  this.guides = await Promise.all(guidesPromises);
-  next();
-});
+// toursSchema.pre('save', async function (next) {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
+
 // toursSchema.pre('save', function (next) {
 //   next();
 // });
@@ -142,11 +148,18 @@ toursSchema.pre(/^find/, function (next) {
   this.start = Date.now();
   next();
 });
-// toursSchema.post(/^find/, function (docs, next) {
-//   console.log(`query took ${Date.now() - this.start} in milliseconds`);
-//   console.log(docs);
-//   next();
-// });
+toursSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
+  next();
+});
+
+toursSchema.post(/^find/, function (docs, next) {
+  console.log(`query took ${Date.now() - this.start} in milliseconds`);
+  next();
+});
 
 // AGGREGATION MIDDLEWARE
 toursSchema.pre('aggregate', function (next) {
