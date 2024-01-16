@@ -1,6 +1,7 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
 const authController = require('../controllers/authController');
+const reviewController = require('../controllers/reviewController');
 
 const { protect, restrictTo } = authController;
 const {
@@ -14,6 +15,8 @@ const {
   getMonthlyPlan,
 } = tourController;
 
+const { createReview } = reviewController;
+
 const router = express.Router();
 // a param middleware that activates only on the tour sub application
 // router.param('id', tourController.checkID);
@@ -26,5 +29,8 @@ router
   .get(getTour)
   .patch(updateTour)
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
+router
+  .route('/:tourId/reviews')
+  .post(protect, restrictTo('user'), createReview);
 
 module.exports = router;
