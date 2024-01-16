@@ -17,6 +17,7 @@ const {
 
 const router = express.Router();
 
+// set up for nested routes.
 router.use('/:tourId/reviews', reviewRouter);
 // a param middleware that activates only on the tour sub application
 // router.param('id', tourController.checkID);

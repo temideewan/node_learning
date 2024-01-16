@@ -9,7 +9,6 @@
 module.exports = class APIFeatures {
   /**
    *
-   * @param {MongooseModel} query
    * @param {ApiQuery} queryString
    */
   constructor(query, queryString) {
