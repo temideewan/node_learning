@@ -1,8 +1,12 @@
 const Tour = require('../models/tourModel');
-const APIFeatures = require('../Utils/apiFeatures');
 const catchAsync = require('../Utils/catchAsync');
-const AppError = require('../Utils/appError');
-const { deleteOne, updateOne, createOne } = require('./handlerFactory');
+const {
+  deleteOne,
+  updateOne,
+  createOne,
+  getOne,
+  getAll,
+} = require('./handlerFactory');
 
 exports.aliasTopTours = async (req, res, next) => {
   req.query.limit = '5';
@@ -10,40 +14,9 @@ exports.aliasTopTours = async (req, res, next) => {
   req.query.fields = 'name,price,ratingsAverage, summary,difficulty';
   next();
 };
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
-  // return results
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
 
-// to declare params make it in the pattern "/:{param  name}"
-// to make a parameter optional add in a question mark after it's name "/:{param name}?"
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('reviews');
-
-  // Tour.findOne({_id: req.params.id})
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
+exports.getAllTours = getAll(Tour);
+exports.getTour = getOne(Tour, { path: 'reviews' });
 exports.createTour = createOne(Tour);
 exports.updateTour = updateOne(Tour);
 exports.deleteTour = deleteOne(Tour);
@@ -69,11 +42,6 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
         avgPrice: -1,
       },
     },
-    // {
-    //   $match: {
-    //     _id: { $ne: 'easy' },
-    //   },
-    // },
   ]);
   res.status(200).json({
     status: 'success',
@@ -104,34 +72,6 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
         tours: { $push: '$name' },
       },
     },
-    // function not allowed in my atlas tier 🥹
-    // {
-    //   $addFields: {
-    //     month: {
-    //       $function: {
-    //         body: function (month) {
-    //           const months = [
-    //             'January',
-    //             'February',
-    //             'March',
-    //             'April',
-    //             'May',
-    //             'June',
-    //             'July',
-    //             'August',
-    //             'September',
-    //             'October',
-    //             'November',
-    //             'December',
-    //           ];
-    //           return months[month - 1];
-    //         },
-    //         args: ['$_id'],
-    //         lang: 'js',
-    //       },
-    //     },
-    //   },
-    // },
     {
       $addFields: {
         month: '$_id',
@@ -158,3 +98,6 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+// to declare params make it in the pattern "/:{param  name}"
+// to make a parameter optional add in a question mark after it's name "/:{param name}?"

@@ -2,7 +2,7 @@ const User = require('../models/userModel');
 const catchAsync = require('../Utils/catchAsync');
 const AppError = require('../Utils/appError');
 const { validUpdateProperties } = require('../constants/appConstants');
-const { deleteOne, updateOne } = require('./handlerFactory');
+const { deleteOne, updateOne, getOne, getAll } = require('./handlerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
   const safeObject = {};
@@ -13,32 +13,12 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return safeObject;
 };
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-  // return results
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
 exports.createUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not yet defined',
+    message: 'This route is not defined! Please use sign up instead',
   });
 };
-exports.deleteUser = deleteOne(User);
-// DO NOT UPDATE PASSWORDS WITH THIS.
-exports.updateUser = updateOne(User);
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) create error if user posts password data
@@ -65,7 +45,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     },
   });
 });
-
 exports.deleteMe = catchAsync(async (req, res, next) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
   res.status(204).json({
@@ -73,3 +52,9 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+exports.getAllUsers = getAll(User);
+exports.getUser = getOne(User);
+exports.deleteUser = deleteOne(User);
+// DO NOT UPDATE PASSWORDS WITH THIS.
+exports.updateUser = updateOne(User);
