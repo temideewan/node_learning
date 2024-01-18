@@ -11,6 +11,7 @@ const {
   deleteUser,
   updateMe,
   deleteMe,
+  getMe,
 } = userController;
 const {
   signup,
@@ -21,6 +22,8 @@ const {
   protect,
 } = authController;
 const router = express.Router();
+
+router.get('/me', protect, getMe, getUser);
 router.post('/signup', signup);
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);
