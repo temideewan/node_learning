@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModel');
 const catchAsync = require('../Utils/catchAsync');
+const AppError = require('../Utils/appError');
 const {
   deleteOne,
   updateOne,
@@ -101,3 +102,28 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
 
 // to declare params make it in the pattern "/:{param  name}"
 // to make a parameter optional add in a question mark after it's name "/:{param name}?"
+// router.route('/tour-within/:distance/center/:latlng/unit/:unit', getTourWithin);
+exports.getTourWithin = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+  if (!lat || !lng) {
+    next(
+      new AppError(
+        'Please provide latitude and longitude in the format lat,lng.',
+        400,
+      ),
+    );
+  }
+
+  console.log(distance, lat, lng, unit);
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      data: tours,
+    },
+  });
+});

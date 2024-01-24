@@ -13,6 +13,7 @@ const {
   aliasTopTours,
   getTourStats,
   getMonthlyPlan,
+  getTourWithin,
 } = tourController;
 
 const router = express.Router();
@@ -26,6 +27,10 @@ router.route('/tour-stats').get(getTourStats);
 router
   .route('/monthly-plan/:year')
   .get(protect, restrictTo('admin', 'lead-guide', 'guide'), getMonthlyPlan);
+
+router
+  .route('/tour-within/:distance/center/:latlng/unit/:unit')
+  .get(getTourWithin);
 router
   .route('/')
   .get(getAllTours)
