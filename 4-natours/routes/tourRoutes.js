@@ -14,6 +14,7 @@ const {
   getTourStats,
   getMonthlyPlan,
   getTourWithin,
+  getDistances,
 } = tourController;
 
 const router = express.Router();
@@ -31,6 +32,8 @@ router
 router
   .route('/tour-within/:distance/center/:latlng/unit/:unit')
   .get(getTourWithin);
+
+router.route('/distances/:latlng/unit/:unit').get(getDistances);
 router
   .route('/')
   .get(getAllTours)

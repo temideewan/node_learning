@@ -177,7 +177,20 @@ tourSchema.post(/^find/, function (docs, next) {
 // AGGREGATION MIDDLEWARE
 tourSchema.pre('aggregate', function (next) {
   // this.pipeline() returns an array of the aggregation pipeline
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  // because a $geoNear stage of an aggregation has to be the first stage in an aggregation pipeline
+  let hasGeoNear = false;
+  const pipeline = this.pipeline();
+  pipeline.forEach((stage) => {
+    if (stage.$geoNear) {
+      hasGeoNear = true;
+    }
+  });
+  if (!hasGeoNear) {
+    pipeline.unshift({ $match: { secretTour: { $ne: true } } });
+  } else {
+    pipeline.splice(1, 0, { $match: { secretTour: { $ne: true } } });
+  }
+  console.log(pipeline);
   next();
 });
 const Tour = mongoose.model('Tour', tourSchema);
