@@ -1,19 +1,12 @@
 /* eslint-disable */
-console.log('Hello from the client side');
 
-const locations = JSON.parse(document.getElementById('map').dataset.locations);
-
-console.log(locations);
-
-mapboxgl.accessToken =
+export const displayMaps = (locations) => {
+  mapboxgl.accessToken =
   'pk.eyJ1IjoidGVtaWRlZXdhbiIsImEiOiJjbHNhNTY3b3owMDJzMmtsaDc5YWhwYjdvIn0.Kfpn4V4mhhlmHcz1cpg1Hg';
 const map = new mapboxgl.Map({
   container: 'map', // container ID
   style: 'mapbox://styles/temideewan/clscw31wm00gx01qz3ipgh1nh', // style URL
 	scrollZoom: false,
-  // center: [-118.113491, 34], // starting position [lng, lat]
-  // zoom: 9, // starting zoom
-  // interactive: false,
 });
 
 const bounds = new mapboxgl.LngLatBounds();
@@ -48,3 +41,6 @@ map.fitBounds(bounds, {
     right: 100,
   },
 });
+
+}
+
