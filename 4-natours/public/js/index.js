@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { login } from './login';
+import { login, logout } from './login';
 import { displayMaps } from './mapbox';
 
 // DOM ELEMENTS
@@ -7,6 +7,7 @@ const mapBox = document.getElementById('map');
 const email = document.getElementById('email');
 const password = document.getElementById('password');
 const form = document.querySelector('.form');
+const logoutButton = document.querySelector('.nav__el--logout');
 
 // DELEGATIONS
 if (mapBox) {
@@ -22,4 +23,8 @@ if (form) {
     console.log(email.value, password.value)
     login(email.value, password.value);
   });
+}
+
+if(logoutButton){
+  logoutButton.addEventListener('click', logout);
 }

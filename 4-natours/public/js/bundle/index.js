@@ -586,6 +586,7 @@ const mapBox = document.getElementById("map");
 const email = document.getElementById("email");
 const password = document.getElementById("password");
 const form = document.querySelector(".form");
+const logoutButton = document.querySelector(".nav__el--logout");
 // DELEGATIONS
 if (mapBox) {
     const locations = JSON.parse(mapBox.dataset.locations);
@@ -598,11 +599,13 @@ if (form) form.addEventListener("submit", function(event) {
     console.log(email.value, password.value);
     (0, _login.login)(email.value, password.value);
 });
+if (logoutButton) logoutButton.addEventListener("click", (0, _login.logout));
 
 },{"./login":"aUJqG","./mapbox":"boTQ2"}],"aUJqG":[function(require,module,exports) {
 /* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "login", ()=>login);
+parcelHelpers.export(exports, "logout", ()=>logout);
 var _esRegexpFlagsJs = require("core-js/modules/es.regexp.flags.js");
 var _esTypedArraySetJs = require("core-js/modules/es.typed-array.set.js");
 var _esnextMapGroupByJs = require("core-js/modules/esnext.map.group-by.js");
@@ -621,7 +624,6 @@ const login = async (email, password)=>{
                 password
             }
         });
-        console.log(res);
         if (res.data.status === "success") {
             (0, _alerts.showAlert)("success", "Logged in successfully");
             window.setTimeout(()=>{
@@ -630,6 +632,18 @@ const login = async (email, password)=>{
         }
     } catch (error) {
         (0, _alerts.showAlert)("error", error.response.data.message);
+    }
+};
+const logout = async ()=>{
+    try {
+        const res = await (0, _axiosDefault.default)({
+            method: "GET",
+            url: "http://localhost:8000/api/v1/users/logout"
+        });
+        if (res.data.status === "success") location.reload(true);
+    } catch (err) {
+        console.log(err);
+        (0, _alerts.showAlert)("error", "Error logging out, please try again");
     }
 };
 
