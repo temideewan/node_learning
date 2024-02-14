@@ -592,11 +592,8 @@ if (mapBox) {
     const locations = JSON.parse(mapBox.dataset.locations);
     (0, _mapbox.displayMaps)(locations);
 }
-console.log(form);
 if (form) form.addEventListener("submit", function(event) {
     event.preventDefault();
-    console.log(email, password);
-    console.log(email.value, password.value);
     (0, _login.login)(email.value, password.value);
 });
 if (logoutButton) logoutButton.addEventListener("click", (0, _login.logout));
@@ -642,12 +639,11 @@ const logout = async ()=>{
         });
         if (res.data.status === "success") location.reload(true);
     } catch (err) {
-        console.log(err);
         (0, _alerts.showAlert)("error", "Error logging out, please try again");
     }
 };
 
-},{"core-js/modules/es.regexp.flags.js":"azdjA","core-js/modules/es.typed-array.set.js":"b0iRR","core-js/modules/esnext.map.group-by.js":"1DEv1","core-js/modules/esnext.symbol.dispose.js":"cZD4y","core-js/modules/web.immediate.js":"3pRoj","@parcel/transformer-js/src/esmodule-helpers.js":"fofuL","axios":"5vw73","./alerts":"97oIL"}],"azdjA":[function(require,module,exports) {
+},{"core-js/modules/es.regexp.flags.js":"azdjA","core-js/modules/es.typed-array.set.js":"b0iRR","core-js/modules/esnext.map.group-by.js":"1DEv1","core-js/modules/esnext.symbol.dispose.js":"cZD4y","core-js/modules/web.immediate.js":"3pRoj","axios":"5vw73","./alerts":"97oIL","@parcel/transformer-js/src/esmodule-helpers.js":"fofuL"}],"azdjA":[function(require,module,exports) {
 "use strict";
 var global = require("c6bf5eee641c0bcc");
 var DESCRIPTORS = require("32574bd865b8e6e5");
@@ -2546,36 +2542,6 @@ module.exports = function(scheduler, hasTimeArg) {
 },{"373dd417176da2c5":"ce3c5","a68ecfcbf29c46f6":"lK8uz","7087588d33667af2":"h6K8N","7679d27a979f2651":"kKPCJ","7493ba8d8bb8623d":"aXGA2","cff2c830bdea4f24":"kKE4y","58a74f00cee1ac64":"6WIyl"}],"kKPCJ":[function(require,module,exports) {
 "use strict";
 /* global Bun -- Bun case */ module.exports = typeof Bun == "function" && Bun && typeof Bun.version == "string";
-
-},{}],"fofuL":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, "__esModule", {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === "default" || key === "__esModule" || Object.prototype.hasOwnProperty.call(dest, key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
 
 },{}],"5vw73":[function(require,module,exports) {
 module.exports = require("9f37cef8b0e13afc");
@@ -6234,7 +6200,37 @@ const hideAlert = ()=>{
     if (el) el.parentElement.removeChild(el);
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"fofuL"}],"boTQ2":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"fofuL"}],"fofuL":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, "__esModule", {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === "default" || key === "__esModule" || Object.prototype.hasOwnProperty.call(dest, key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"boTQ2":[function(require,module,exports) {
 /* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "displayMaps", ()=>displayMaps);

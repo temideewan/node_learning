@@ -190,7 +190,6 @@ tourSchema.pre('aggregate', function (next) {
   } else {
     pipeline.splice(1, 0, { $match: { secretTour: { $ne: true } } });
   }
-  console.log(pipeline);
   next();
 });
 const Tour = mongoose.model('Tour', tourSchema);

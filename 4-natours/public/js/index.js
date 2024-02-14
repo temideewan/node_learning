@@ -15,12 +15,9 @@ if (mapBox) {
   displayMaps(locations);
 }
 
-console.log(form);
 if (form) {
   form.addEventListener('submit', function (event) {
     event.preventDefault();
-    console.log(email, password)
-    console.log(email.value, password.value)
     login(email.value, password.value);
   });
 }

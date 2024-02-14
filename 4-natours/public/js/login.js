@@ -33,7 +33,6 @@ export const logout = async () => {
       location.reload(true)
     }
   } catch (err) {
-    console.log(err);
     showAlert('error', 'Error logging out, please try again');
   }
 };
