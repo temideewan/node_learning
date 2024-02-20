@@ -6,7 +6,7 @@ import { displayMaps } from './mapbox';
 const mapBox = document.getElementById('map');
 const email = document.getElementById('email');
 const password = document.getElementById('password');
-const form = document.querySelector('.form');
+const form = document.querySelector('.form--login');
 const logoutButton = document.querySelector('.nav__el--logout');
 
 // DELEGATIONS

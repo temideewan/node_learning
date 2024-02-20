@@ -50,7 +50,7 @@ app.use(
     limit: '10kb',
   }),
 );
-
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
 // data sanitization against NoSQL query injection
@@ -68,7 +68,6 @@ app.use(
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
-  console.log(req.cookies);
   next();
 });
 
