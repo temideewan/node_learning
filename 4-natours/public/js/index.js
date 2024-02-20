@@ -1,16 +1,14 @@
 /* eslint-disable */
 import { login, logout } from './login';
-import { updateData } from './updateSettings';
+import { updateSettings } from './updateSettings';
 import { displayMaps } from './mapbox';
 
 // DOM ELEMENTS
 const mapBox = document.getElementById('map');
-const email = document.getElementById('email');
-const name = document.getElementById('name');
-const password = document.getElementById('password');
-const form = document.querySelector('.form--login');
+const loginForm = document.querySelector('.form--login');
 const logoutButton = document.querySelector('.nav__el--logout');
 const updateAccountForm = document.querySelector('.form-user-data');
+const updatePasswordForm = document.querySelector('.form-user-settings');
 
 // DELEGATIONS
 if (mapBox) {
@@ -18,16 +16,37 @@ if (mapBox) {
   displayMaps(locations);
 }
 
-if (form) {
-  form.addEventListener('submit', function (event) {
+if (loginForm) {
+  loginForm.addEventListener('submit', function (event) {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
     event.preventDefault();
-    login(email.value, password.value);
+    login(email, password);
   });
 }
 if (updateAccountForm) {
   updateAccountForm.addEventListener('submit', function (event) {
+    const email = document.getElementById('email').value;
+    const name = document.getElementById('name').value;
     event.preventDefault();
-    updateData(name.value, email.value);
+    updateSettings({ name, email }, 'data');
+  });
+}
+if (updatePasswordForm) {
+  updatePasswordForm.addEventListener('submit', async function (event) {
+    document.querySelector('.btn--save-password').textContent = 'Updating...'
+    event.preventDefault();
+    const passwordCurrent = document.getElementById('password-current').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('password-confirm').value;
+    await updateSettings(
+      { password, passwordCurrent, passwordConfirm },
+      'password',
+      );
+      document.getElementById('password-current').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('password-confirm').value = '';
+      document.querySelector('.btn--save-password').textContent = 'Save password'
   });
 }
 

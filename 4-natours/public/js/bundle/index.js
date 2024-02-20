@@ -584,24 +584,45 @@ var _updateSettings = require("./updateSettings");
 var _mapbox = require("./mapbox");
 // DOM ELEMENTS
 const mapBox = document.getElementById("map");
-const email = document.getElementById("email");
-const name = document.getElementById("name");
-const password = document.getElementById("password");
-const form = document.querySelector(".form--login");
+const loginForm = document.querySelector(".form--login");
 const logoutButton = document.querySelector(".nav__el--logout");
 const updateAccountForm = document.querySelector(".form-user-data");
+const updatePasswordForm = document.querySelector(".form-user-settings");
 // DELEGATIONS
 if (mapBox) {
     const locations = JSON.parse(mapBox.dataset.locations);
     (0, _mapbox.displayMaps)(locations);
 }
-if (form) form.addEventListener("submit", function(event) {
+if (loginForm) loginForm.addEventListener("submit", function(event) {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
     event.preventDefault();
-    (0, _login.login)(email.value, password.value);
+    (0, _login.login)(email, password);
 });
 if (updateAccountForm) updateAccountForm.addEventListener("submit", function(event) {
+    const email = document.getElementById("email").value;
+    const name = document.getElementById("name").value;
     event.preventDefault();
-    (0, _updateSettings.updateData)(name.value, email.value);
+    (0, _updateSettings.updateSettings)({
+        name,
+        email
+    }, "data");
+});
+if (updatePasswordForm) updatePasswordForm.addEventListener("submit", async function(event) {
+    document.querySelector(".btn--save-password").textContent = "Updating...";
+    event.preventDefault();
+    const passwordCurrent = document.getElementById("password-current").value;
+    const password = document.getElementById("password").value;
+    const passwordConfirm = document.getElementById("password-confirm").value;
+    await (0, _updateSettings.updateSettings)({
+        password,
+        passwordCurrent,
+        passwordConfirm
+    }, "password");
+    document.getElementById("password-current").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("password-confirm").value = "";
+    document.querySelector(".btn--save-password").textContent = "Save password";
 });
 if (logoutButton) logoutButton.addEventListener("click", (0, _login.logout));
 
@@ -6278,7 +6299,7 @@ const displayMaps = (locations)=>{
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"fofuL"}],"j7xLx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "updateData", ()=>updateData);
+parcelHelpers.export(exports, "updateSettings", ()=>updateSettings);
 var _esRegexpFlagsJs = require("core-js/modules/es.regexp.flags.js");
 var _esTypedArraySetJs = require("core-js/modules/es.typed-array.set.js");
 var _esnextMapGroupByJs = require("core-js/modules/esnext.map.group-by.js");
@@ -6287,17 +6308,15 @@ var _webImmediateJs = require("core-js/modules/web.immediate.js");
 var _axios = require("axios");
 var _axiosDefault = parcelHelpers.interopDefault(_axios);
 var _alerts = require("./alerts");
-const updateData = async (name, email)=>{
+const updateSettings = async (data, type)=>{
     try {
+        const url = type == "password" ? "http://localhost:8000/api/v1/users/updateMyPassword" : "http://localhost:8000/api/v1/users/updateMe";
         const res = await (0, _axiosDefault.default)({
             method: "PATCH",
-            url: "http://localhost:8000/api/v1/users/updateMe",
-            data: {
-                name,
-                email
-            }
+            url,
+            data
         });
-        if (res.data.status === "success") (0, _alerts.showAlert)("success", "Data updated successfully");
+        if (res.data.status === "success") (0, _alerts.showAlert)("success", `${type.toUpperCase()} updated successfully`);
     } catch (error) {
         (0, _alerts.showAlert)("error", error.response.data.message);
     }
