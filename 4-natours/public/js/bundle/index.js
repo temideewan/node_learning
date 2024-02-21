@@ -626,7 +626,7 @@ if (updatePasswordForm) updatePasswordForm.addEventListener("submit", async func
 });
 if (logoutButton) logoutButton.addEventListener("click", (0, _login.logout));
 
-},{"./login":"aUJqG","./mapbox":"boTQ2","./updateSettings":"j7xLx"}],"aUJqG":[function(require,module,exports) {
+},{"./login":"aUJqG","./updateSettings":"j7xLx","./mapbox":"boTQ2"}],"aUJqG":[function(require,module,exports) {
 /* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "login", ()=>login);
@@ -6258,7 +6258,33 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"boTQ2":[function(require,module,exports) {
+},{}],"j7xLx":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "updateSettings", ()=>updateSettings);
+var _esRegexpFlagsJs = require("core-js/modules/es.regexp.flags.js");
+var _esTypedArraySetJs = require("core-js/modules/es.typed-array.set.js");
+var _esnextMapGroupByJs = require("core-js/modules/esnext.map.group-by.js");
+var _esnextSymbolDisposeJs = require("core-js/modules/esnext.symbol.dispose.js");
+var _webImmediateJs = require("core-js/modules/web.immediate.js");
+var _axios = require("axios");
+var _axiosDefault = parcelHelpers.interopDefault(_axios);
+var _alerts = require("./alerts");
+const updateSettings = async (data, type)=>{
+    try {
+        const url = type == "password" ? "http://localhost:8000/api/v1/users/updateMyPassword" : "http://localhost:8000/api/v1/users/updateMe";
+        const res = await (0, _axiosDefault.default)({
+            method: "PATCH",
+            url,
+            data
+        });
+        if (res.data.status === "success") (0, _alerts.showAlert)("success", `${type.toUpperCase()} updated successfully`);
+    } catch (error) {
+        (0, _alerts.showAlert)("error", error.response.data.message);
+    }
+};
+
+},{"core-js/modules/es.regexp.flags.js":"azdjA","core-js/modules/es.typed-array.set.js":"b0iRR","core-js/modules/esnext.map.group-by.js":"1DEv1","core-js/modules/esnext.symbol.dispose.js":"cZD4y","core-js/modules/web.immediate.js":"3pRoj","axios":"5vw73","./alerts":"97oIL","@parcel/transformer-js/src/esmodule-helpers.js":"fofuL"}],"boTQ2":[function(require,module,exports) {
 /* eslint-disable */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "displayMaps", ()=>displayMaps);
@@ -6296,32 +6322,6 @@ const displayMaps = (locations)=>{
     });
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"fofuL"}],"j7xLx":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "updateSettings", ()=>updateSettings);
-var _esRegexpFlagsJs = require("core-js/modules/es.regexp.flags.js");
-var _esTypedArraySetJs = require("core-js/modules/es.typed-array.set.js");
-var _esnextMapGroupByJs = require("core-js/modules/esnext.map.group-by.js");
-var _esnextSymbolDisposeJs = require("core-js/modules/esnext.symbol.dispose.js");
-var _webImmediateJs = require("core-js/modules/web.immediate.js");
-var _axios = require("axios");
-var _axiosDefault = parcelHelpers.interopDefault(_axios);
-var _alerts = require("./alerts");
-const updateSettings = async (data, type)=>{
-    try {
-        const url = type == "password" ? "http://localhost:8000/api/v1/users/updateMyPassword" : "http://localhost:8000/api/v1/users/updateMe";
-        const res = await (0, _axiosDefault.default)({
-            method: "PATCH",
-            url,
-            data
-        });
-        if (res.data.status === "success") (0, _alerts.showAlert)("success", `${type.toUpperCase()} updated successfully`);
-    } catch (error) {
-        (0, _alerts.showAlert)("error", error.response.data.message);
-    }
-};
-
-},{"core-js/modules/es.regexp.flags.js":"azdjA","core-js/modules/es.typed-array.set.js":"b0iRR","core-js/modules/esnext.map.group-by.js":"1DEv1","core-js/modules/esnext.symbol.dispose.js":"cZD4y","core-js/modules/web.immediate.js":"3pRoj","axios":"5vw73","./alerts":"97oIL","@parcel/transformer-js/src/esmodule-helpers.js":"fofuL"}]},["df30p","fSlqf"], "fSlqf", "parcelRequire11c7")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"fofuL"}]},["df30p","fSlqf"], "fSlqf", "parcelRequire11c7")
 
 //# sourceMappingURL=index.js.map
