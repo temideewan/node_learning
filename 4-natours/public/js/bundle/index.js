@@ -600,13 +600,13 @@ if (loginForm) loginForm.addEventListener("submit", function(event) {
     (0, _login.login)(email, password);
 });
 if (updateAccountForm) updateAccountForm.addEventListener("submit", function(event) {
-    const email = document.getElementById("email").value;
-    const name = document.getElementById("name").value;
     event.preventDefault();
-    (0, _updateSettings.updateSettings)({
-        name,
-        email
-    }, "data");
+    const form = new FormData();
+    form.append("name", document.getElementById("name").value);
+    form.append("email", document.getElementById("email").value);
+    form.append("photo", document.getElementById("photo").files[0]);
+    console.log(form);
+    (0, _updateSettings.updateSettings)(form, "data");
 });
 if (updatePasswordForm) updatePasswordForm.addEventListener("submit", async function(event) {
     document.querySelector(".btn--save-password").textContent = "Updating...";

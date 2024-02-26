@@ -26,10 +26,13 @@ if (loginForm) {
 }
 if (updateAccountForm) {
   updateAccountForm.addEventListener('submit', function (event) {
-    const email = document.getElementById('email').value;
-    const name = document.getElementById('name').value;
     event.preventDefault();
-    updateSettings({ name, email }, 'data');
+    const form = new FormData();
+    form.append('name', document.getElementById('name').value)
+    form.append('email', document.getElementById('email').value)
+    form.append('photo', document.getElementById('photo').files[0])
+    console.log(form);
+    updateSettings(form, 'data');
   });
 }
 if (updatePasswordForm) {
