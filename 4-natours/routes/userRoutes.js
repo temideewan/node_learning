@@ -13,6 +13,7 @@ const {
   deleteMe,
   getMe,
   uploadUserPhoto,
+  resizeUserPhoto,
 } = userController;
 const {
   signup,
@@ -37,7 +38,7 @@ router.post('/resetPassword/:token', resetPassword);
 // so placing routes after the protect middleware before the remaining ones, then they would need to be logged in to use any of the routes below
 router.use(protect);
 router.patch('/updateMyPassword', updatePassword);
-router.patch('/updateMe', uploadUserPhoto, updateMe);
+router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe);
 router.delete('/deleteMe', deleteMe);
 router.use(restrictTo('admin'));
 router.route('/').get(getAllUsers).post(createUser);
