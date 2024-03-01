@@ -10,7 +10,7 @@ module.exports = class Email {
     this.from = `Omoyajowo Temidayo <${process.env.EMAIL_FROM}>`;
   }
 
-  async newTransport() {
+  newTransport() {
     if (process.env.NODE_ENV === 'production') {
       // SENDGRID
       return 1;
@@ -28,20 +28,17 @@ module.exports = class Email {
   // send the actual email
   async send(template, subject) {
     // render HTML based on a pug template
-    const html = pug.renderFile(
-      `${__dirname}/../views/emails/${template}.pug`,
-      {
-        firstName: this.firstName,
-        url: this.url,
-        subject,
-      },
-    );
+    const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
+      firstName: this.firstName,
+      url: this.url,
+      subject,
+    });
     // 2) define the email options
     const mailOptions = {
       from: this.from,
       to: this.to,
       subject,
-      text: htmlToText.fromString(html),
+      text: htmlToText.convert(html),
       html,
     };
 

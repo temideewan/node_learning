@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../Utils/catchAsync');
 const AppError = require('../Utils/appError');
-const sendEmail = require('../Utils/email');
+const Email = require('../Utils/email');
 const { anHourAgo, maxLoginRetries } = require('../constants/appConstants');
 // eslint-disable-next-line arrow-body-style
 const signToken = (id) => {
@@ -88,6 +88,9 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     role: req.body.role,
   });
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  console.log(url);
+  await new Email(newUser, url).sendWelcome();
   createAndSendToken(newUser, 201, res);
 });
 
@@ -230,11 +233,11 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const message = `Forgot your password? Submit a patch request with your new password and passwordConfirm to: ${resetURL}\nIf you didn't forget your password, please ignore this email!`;
 
   try {
-    await sendEmail({
-      email: user.email,
-      subject: `Your password reset token (valid for 10 min)`,
-      message,
-    });
+    // await sendEmail({
+    //   email: user.email,
+    //   subject: `Your password reset token (valid for 10 min)`,
+    //   message,
+    // });
   } catch (err) {
     // if any errors occur while sending email for reset token then remove it from the user object
     user.passwordResetToken = undefined;
