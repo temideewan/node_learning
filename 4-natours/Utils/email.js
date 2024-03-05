@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const pug = require('pug');
 const htmlToText = require('html-to-text');
+const postmarkTransport = require('nodemailer-postmark-transport');
 
 module.exports = class Email {
   constructor(user, url) {
@@ -12,8 +13,13 @@ module.exports = class Email {
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
-      // SENDGRID
-      return 1;
+      console.log(process.env.POSTMARK_KEY);
+      const postmarkTransportConfig = postmarkTransport({
+        auth: {
+          apiKey: process.env.POSTMARK_KEY,
+        },
+      });
+      return nodemailer.createTransport(postmarkTransportConfig);
     }
     return nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
