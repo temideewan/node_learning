@@ -605,7 +605,6 @@ if (updateAccountForm) updateAccountForm.addEventListener("submit", function(eve
     form.append("name", document.getElementById("name").value);
     form.append("email", document.getElementById("email").value);
     form.append("photo", document.getElementById("photo").files[0]);
-    console.log(form);
     (0, _updateSettings.updateSettings)(form, "data");
 });
 if (updatePasswordForm) updatePasswordForm.addEventListener("submit", async function(event) {
