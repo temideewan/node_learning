@@ -2,6 +2,7 @@
 import { login, logout } from './login';
 import { updateSettings } from './updateSettings';
 import { displayMaps } from './mapbox';
+import { bookTour } from './booking';
 
 // DOM ELEMENTS
 const mapBox = document.getElementById('map');
@@ -9,6 +10,7 @@ const loginForm = document.querySelector('.form--login');
 const logoutButton = document.querySelector('.nav__el--logout');
 const updateAccountForm = document.querySelector('.form-user-data');
 const updatePasswordForm = document.querySelector('.form-user-settings');
+const bookingButton = document.getElementById('book-tour');
 
 // DELEGATIONS
 if (mapBox) {
@@ -54,4 +56,22 @@ if (updatePasswordForm) {
 
 if (logoutButton) {
   logoutButton.addEventListener('click', logout);
+}
+
+if(bookingButton){
+  bookingButton.addEventListener('click', async(e) => {
+    e.target.textContent = 'Processing...';
+    const {tourId} = e.target.dataset;
+    try{
+      const response = await bookTour(tourId);
+      if(response.status){
+        console.log(response.data);
+        window.open(response.data.authorization_url, '_blank');
+        e.target.textContent = 'BOOK TOUR NOW!';
+      }
+    } catch(e) {
+      console.log(e);
+    }
+
+  });
 }

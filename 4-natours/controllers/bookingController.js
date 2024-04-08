@@ -8,9 +8,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.tourId);
   // create a checkout session?
   try {
-    const { email, amount } = req.body;
+    const { email } = req.user;
+    const amount = tour.price * 100;
     if (!email || !amount) {
-      throw new AppError('Please enter an email address and amount', 400);
+      return next(AppError('Please enter an email address and amount', 400));
     }
     const body = JSON.stringify({
       email,
@@ -24,11 +25,13 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         },
       })
       .then((response) => {
+        // create a new booking with a status of pending.
+        // start a cron job to verify the status of the new booking for every 1 hour
+        // if verified, update the status of the new booking to whatever comes back from paystack.
+        // cancel the cron job
         res.status(200).json({
           status: 'success',
-          data: {
-            data: response.data,
-          },
+          data: response.data,
         });
       })
       .catch((error) => {
@@ -38,4 +41,11 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     //
   }
   // create session as response
+});
+
+exports.getBookingStatus = catchAsync(async (req, res, next) => {
+  // get the reference code, user id and tour id from the request
+  // go through the bookings to get a booking that has a user id of the user and task id of that user.
+  // make an api call to paystack to confirm the status of the payment
+  // update the booking status as required
 });
