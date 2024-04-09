@@ -1,7 +1,53 @@
+/* eslint-disable no-use-before-define */
 const axios = require('axios');
+const cron = require('node-cron');
 const Tour = require('../models/tourModel');
 const catchAsync = require('../Utils/catchAsync');
 const AppError = require('../Utils/appError');
+const {
+  paystackInitializeEndpoint,
+  paystackConfirmEndpoint,
+  BookingStatus,
+} = require('../constants/appConstants');
+const Booking = require('../models/bookingModel');
+
+let cronReference = null;
+
+const confirmBookingStatus = async (transactionReference, bookingId) => {
+  // get the reference code, user id and tour id from the request
+  const booking = await Booking.findById(bookingId);
+  // go through the bookings to get a booking that has a user id of the user and task id of that user.
+  // make an api call to paystack to confirm the status of the payment
+  // update the booking status as required
+  if (booking && booking.status === BookingStatus.success) {
+    cronReference.stop();
+  } else {
+    const result = await axios.get(
+      `${paystackConfirmEndpoint}/${transactionReference}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        },
+      },
+    );
+    const { data } = result.data;
+    if (data.status === 'success') {
+      booking.status = BookingStatus.success;
+      await booking.save();
+      cronReference.stop();
+    } else if (data.status === 'failed') {
+      booking.status = BookingStatus.failed;
+      await booking.save();
+      cronReference.stop();
+    }
+  }
+};
+
+function cronJob(transactionReference, id) {
+  return cron.schedule('*/1 * * * *', async () => {
+    confirmBookingStatus(transactionReference, id);
+  });
+}
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1 get the currently booked tour
@@ -17,35 +63,27 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       email,
       amount: amount * 100,
     });
-    axios
-      .post('https://api.paystack.co/transaction/initialize', body, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-        },
-      })
-      .then((response) => {
-        // create a new booking with a status of pending.
-        // start a cron job to verify the status of the new booking for every 1 hour
-        // if verified, update the status of the new booking to whatever comes back from paystack.
-        // cancel the cron job
-        res.status(200).json({
-          status: 'success',
-          data: response.data,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    const response = await axios.post(paystackInitializeEndpoint, body, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+      },
+    });
+    const booking = await Booking.create({
+      tour: tour.id,
+      user: req.user.id,
+      reference: response.data.data.reference,
+      status: 'pending',
+      price: amount,
+    });
+    cronReference = cronJob(response.data.data.reference, booking.id);
+    cronReference.start();
+    res.status(200).json({
+      status: 'success',
+      data: response.data,
+    });
   } finally {
     //
   }
   // create session as response
-});
-
-exports.getBookingStatus = catchAsync(async (req, res, next) => {
-  // get the reference code, user id and tour id from the request
-  // go through the bookings to get a booking that has a user id of the user and task id of that user.
-  // make an api call to paystack to confirm the status of the payment
-  // update the booking status as required
 });

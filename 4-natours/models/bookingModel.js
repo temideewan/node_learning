@@ -11,10 +11,18 @@ const bookingSchema = mongoose.Schema({
     ref: 'User',
     required: [true, 'Review must belong to a user'],
   },
+  price: {
+    type: Number,
+    required: [true, 'A booking must have a price'],
+  },
+  confirmWaitTimeInMinutes: {
+    type: Number,
+    default: 1,
+  },
   status: {
     type: String,
     default: 'pending',
-    enum: ['pending', 'confirmed', 'canceled'],
+    enum: ['pending', 'success', 'failed'],
   },
   createdAt: {
     type: Date,

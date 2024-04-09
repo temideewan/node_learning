@@ -12,3 +12,13 @@ exports.whiteListedParams = [
   'difficulty',
   'price',
 ];
+
+exports.paystackInitializeEndpoint =
+  'https://api.paystack.co/transaction/initialize';
+exports.paystackConfirmEndpoint = 'https://api.paystack.co/transaction/verify';
+
+exports.BookingStatus = {
+  success: 'success',
+  pending: 'pending',
+  failed: 'failed',
+};
